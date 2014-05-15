@@ -8,7 +8,7 @@ class MovieBlogOrg(Crypter):
     __name__ = "MovieBlogOrg"
     __type__ = "crypter"
     __pattern__ = r'http://(?:www\.)?(movie-blog.org)/\d*/.*?'
-    __version__ = "0.01"
+    __version__ = "0.02"
     __config__ = [("randomPreferred", "bool", "Randomize Preferred-List", False),
                   ("hosterListMode", "OnlyOne;OnlyPreferred(One);OnlyPreferred(All);All",
                    "Use for hosters (if supported)", "All"),
@@ -17,12 +17,12 @@ class MovieBlogOrg(Crypter):
                   ("ignoreList", "str", "Ignored Hoster list (comma separated)", "MegauploadCom"),
                   ("loadImage", "bool", "Load Image", True)]
     __description__ = """Movie-Blog.org decrypter plugin"""
-    __author_name__ = ("anon", "anon2")
-    __author_mail__ = ("anon@example.com", "anon2@example.com")
+    __author_name__ = ("nomad71")
+    __author_mail__ = ("nomad71REMOVETHIS@gmx.net")
 
     FOLDER_NAME_PATTERN = r'<span class="?item"?><span class="?fn"?>(?P<name>.*)<\/span><\/a>'
     LINK_PATTERN = r'<strong>.*<\/strong>\s*<a target="?_blank"? href="?(?P<url>.*?)"? >(?P<hoster>.*)<\/a><br[>| \>]'
-    IMAGE_PATTERN = r'<p><img src="?(?P<image>.*?)"? height="?\d*"? width="?\d*"?><br[>| \>]'
+    IMAGE_PATTERN = r'<p><img(?:.*) src=[\'\"]?(?P<image>.*?)[ \'\"](?:.*)?>'
     
     
     def setup(self):
@@ -46,6 +46,9 @@ class MovieBlogOrg(Crypter):
         else:
             self.fail(_("No Hoster was found"))
 
+        if len(preferredList) == 0:
+            self.fail(_("No Hoster matched your criteria. Please adjust your settings"))    
+
         #find cover image (optional)
         if self.getConfig("loadImage"):
             image = re.search(self.IMAGE_PATTERN, self.html)
@@ -58,10 +61,7 @@ class MovieBlogOrg(Crypter):
 
         self.logDebug("preferredList: " + str(preferredList))
 
-        if len(preferredList) == 0:
-            self.fail(_("No Hoster matched your criteria. Please adjust your settings"))
-        else:
-            self.packages.append((name, preferredList, name))
+        self.packages.append((name, preferredList, name))
 
     #taken and modified from SerienjunkiesOrg plugin.
     #selects the preferred hoster, after that selects any hoster (ignoring the one to ignore)
