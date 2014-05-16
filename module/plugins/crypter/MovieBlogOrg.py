@@ -26,7 +26,7 @@ class MovieBlogOrg(Crypter):
     
     
     def setup(self):
-        self.multiDL = False
+        self.multiDL = True
 
     def decrypt(self, pyfile):
         self.html = self.load(pyfile.url, decode=True)
