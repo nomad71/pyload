@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import re
+import HTMLParser
 from module.plugins.Crypter import Crypter
 
 class NineGagCom(Crypter):
@@ -33,7 +34,12 @@ class NineGagCom(Crypter):
 
         if name:
             name = name.group('name')
-            #self.logDebug("Name: " + name)
+            h = HTMLParser.HTMLParser()
+            name = h.unescape(name)
+            #valid_chars = "ƒ‹÷‰¸ˆﬂ!+,;&#-_.() %s%s" % (string.ascii_letters, string.digits)
+            #name = ''.join(c for c in name if c in valid_chars)
+            invalid_chars = "\/:<>?|*\""
+            name = ''.join(c for c in name if c not in invalid_chars)
         else:
             self.fail(_("No name was found!"))
 
